@@ -1,23 +1,63 @@
+#!/bin/bash
+
+root_password=""
+admin_password=123456
+site=""
+port=22
+# Get the options
+while getopts "p:r:a:s:" option; do
+   case $option in
+      p) # SSH Port
+         port=$OPTARG;;
+      r) # Root password
+         root_password=$OPTARG;;
+      a) # OpenLiteSpeed admin password
+         admin_password=$OPTARG;;
+      s) # Init site for OpenLiteSpeed
+         site=$OPTARG;;
+     \?) # Invalid option
+         echo "Error: Invalid option"
+         exit;;
+   esac
+done
+
 echo "Updating Ubuntu..."
 apt-get update > /dev/null 2>&1
 apt-get upgrade -y > /dev/null 2>&1
 apt autoremove -y > /dev/null 2>&1
 echo "Done!"
+# Timezone
 echo "Set Timezone to Asia/Ho_Chi_Minh"
 timedatectl set-timezone Asia/Ho_Chi_Minh > /dev/null 2>&1
-echo "Set root password"
-(echo $1; echo $1;) | passwd root > /dev/null 2>&1
-# passwd root
+# Root password
+if [[ ! -z "$root_password" ]]
+then
+  echo "Set root password"
+  (echo $root_password; echo $root_password;) | passwd root > /dev/null 2>&1
+fi
+# Google Authenticator
 echo "Installing Google Authenticator..."
 apt install libpam-google-authenticator -y > /dev/null 2>&1
 google-authenticator -t -C -d -f --rate-limit=3 --rate-time=30 --window-size=1
 echo "Done!"
+# Fail2ban
 echo "Installing Fail2ban..."
 apt install fail2ban -y > /dev/null 2>&1
 systemctl enable --now fail2ban > /dev/null 2>&1
 echo "Coping /etc/fail2ban/jail.conf to /etc/fail2ban/jail.local"
 cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local > /dev/null 2>&1
 echo "Done!"
+# Config files
+echo "Inject config files!"
+sudo ufw deny 22/tcp
+sudo ufw allow $port/tcp
+wget -O /etc/ssh/sshd_config https://phu1237.github.io/ols-install/sshd_config
+wget -O /etc/fail2ban/jail.local https://phu1237.github.io/ols-install/jail.local
+wget -O /etc/pam.d/sshd https://phu1237.github.io/ols-install/sshd
+sed -i 's/#Port 22/Port $port/' /etc/ssh/sshd_config
+systemctl restart sshd
+echo "Done!"
+# Docker
 echo "Installing Docker..."
 echo "> Set up the repository"
 apt-get install \
@@ -43,11 +83,29 @@ cd ols-docker-env
 echo "Setting up OpenLiteSpeed..."
 docker compose up -d > /dev/null 2>&1
 echo "Done!"
+echo "Deleting Example virtual host files..."
+docker exec -it ols-docker-env-litespeed-1 bash -c "cd /usr/local/lsws && rm -rf Example && rm -rf conf/vhost/Example"
+echo "Done!"
 bash bin/webadmin.sh -M enable > /dev/null 2>&1
-bash bin/webadmin.sh 8tjNWjmM > /dev/null 2>&1
+bash bin/webadmin.sh $admin_password > /dev/null 2>&1
+echo -------------------------------------------------
+echo "Server information"
+echo "> SSH port number: $port"
+echo "> User: root"
+if [[ ! -z "$root_password" ]]
+then
+  echo "> Password: $root_password"
+else
+  echo "> Password: Your current password"
+fi
 echo "OpenLiteSpeed information:"
 echo "> URL: http://IP:7080"
 echo "> User Name: admin"
-echo "> Password: $2"
-bash bin/domain.sh -m $3
+echo "> Password: $admin_password"
+if [[ ! -z "$site" ]]
+then
+  echo "OpenLiteSpeed Virtual Host information:"
+  echo "> Virtual Host name: $site"
+  bash bin/domain.sh -m $site
+fi
 cd ~
