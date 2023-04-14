@@ -54,7 +54,7 @@ sudo ufw allow $port/tcp
 wget -O /etc/ssh/sshd_config https://phu1237.github.io/ols-install/sshd_config
 wget -O /etc/fail2ban/jail.local https://phu1237.github.io/ols-install/jail.local
 wget -O /etc/pam.d/sshd https://phu1237.github.io/ols-install/sshd
-sed -i 's/#Port 22/Port $port/' /etc/ssh/sshd_config
+sed -i "s/#Port 22/Port $port/g" /etc/ssh/sshd_config
 systemctl restart sshd
 echo "Done!"
 # Docker
