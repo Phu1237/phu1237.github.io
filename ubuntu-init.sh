@@ -47,16 +47,14 @@ echo "Done!"
 echo "Installing Fail2ban..."
 apt install fail2ban -y > /dev/null 2>&1
 systemctl enable --now fail2ban > /dev/null 2>&1
-echo "Coping /etc/fail2ban/jail.conf to /etc/fail2ban/jail.local"
-cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local > /dev/null 2>&1
 echo "Done!"
 # Config files
 echo "Inject config files!"
 ufw deny 22/tcp > /dev/null 2>&1
 ufw allow $port/tcp > /dev/null 2>&1
-wget -O /etc/ssh/sshd_config https://phu1237.github.io/ols-install/sshd_config > /dev/null 2>&1
-wget -O /etc/fail2ban/jail.local https://phu1237.github.io/ols-install/jail.local > /dev/null 2>&1
-wget -O /etc/pam.d/sshd https://phu1237.github.io/ols-install/sshd > /dev/null 2>&1
+wget -O /etc/ssh/sshd_config https://phu1237.github.io/ubuntu-init/sshd_config > /dev/null 2>&1
+wget -O /etc/fail2ban/jail.local https://phu1237.github.io/ubuntu-init/jail.local > /dev/null 2>&1
+wget -O /etc/pam.d/sshd https://phu1237.github.io/ubuntu-init/sshd > /dev/null 2>&1
 sed -i "s/#Port 22/Port $port/g" /etc/ssh/sshd_config > /dev/null 2>&1
 systemctl restart sshd > /dev/null 2>&1
 echo "Done!"
