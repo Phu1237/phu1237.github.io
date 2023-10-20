@@ -48,6 +48,11 @@ echo "Installing Fail2ban..."
 apt install fail2ban -y > /dev/null 2>&1
 systemctl enable --now fail2ban > /dev/null 2>&1
 echo "Done!"
+# Time sync
+echo "Installing Time sync..."
+apt install ntp -y > /dev/null 2>&1
+sudo systemctl enable --now ntp > /dev/null 2>&1
+echo "Done!"
 # Config files
 echo "Inject config files!"
 ufw deny 22/tcp > /dev/null 2>&1
