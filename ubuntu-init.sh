@@ -4,6 +4,7 @@ root_password=""
 admin_password=123456
 site=""
 port=22
+bash_aliases=""
 install_ols=""
 # Get the options
 while getopts "p:r:Oa:s:" option; do
@@ -12,6 +13,8 @@ while getopts "p:r:Oa:s:" option; do
             port=$OPTARG;;
         r) # Root password
             root_password=$OPTARG;;
+        b) # Bash aliases
+            bash_aliases=1;
         O) # Install OpenLiteSpeed
             install_ols=1;;
         a) # OpenLiteSpeed admin password
@@ -29,30 +32,36 @@ apt-get update > /dev/null 2>&1
 apt-get upgrade -y > /dev/null 2>&1
 apt autoremove -y > /dev/null 2>&1
 echo "Done!"
+
 # Timezone
 echo "Set Timezone to Asia/Ho_Chi_Minh"
 timedatectl set-timezone Asia/Ho_Chi_Minh > /dev/null 2>&1
+
 # Root password
 if [[ ! -z "$root_password" ]]
 then
   echo "Set root password"
   (echo $root_password; echo $root_password;) | passwd root > /dev/null 2>&1
 fi
+
 # Google Authenticator
 echo "Installing Google Authenticator..."
 apt install libpam-google-authenticator -y > /dev/null 2>&1
 google-authenticator -t -C -d -f --rate-limit=3 --rate-time=30 --window-size=1
 echo "Done!"
+
 # Fail2ban
 echo "Installing Fail2ban..."
 apt install fail2ban -y > /dev/null 2>&1
 systemctl enable --now fail2ban > /dev/null 2>&1
 echo "Done!"
+
 # Time sync
 echo "Installing Time sync..."
 apt install ntp -y > /dev/null 2>&1
 sudo systemctl enable --now ntp > /dev/null 2>&1
 echo "Done!"
+
 # Config files
 echo "Inject config files!"
 ufw deny 22/tcp > /dev/null 2>&1
@@ -63,6 +72,7 @@ wget -O /etc/pam.d/sshd https://phu1237.github.io/ubuntu-init/sshd > /dev/null 2
 sed -i "s/#Port 22/Port $port/g" /etc/ssh/sshd_config > /dev/null 2>&1
 systemctl restart sshd > /dev/null 2>&1
 echo "Done!"
+
 # Docker
 echo "Installing Docker..."
 echo "> Set up the repository"
@@ -82,6 +92,18 @@ apt-get update > /dev/null 2>&1
 apt-get remove docker docker-engine docker.io containerd runc -y > /dev/null 2>&1
 apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y > /dev/null 2>&1
 echo "Done!"
+
+# Bash aliases
+if [[ ! -z "$bash_aliases" ]]
+then
+    echo "Inject bash alliases!"
+    wget -O ~/.bash_aliases https://phu1237.github.io/ubuntu-init/bash_aliases > /dev/null 2>&1
+    source ~/.bashrc > /dev/null 2>&1
+    source ~/.bash_aliases > /dev/null 2>&1
+    echo "Done!"
+fi
+
+# OpenLiteSpeed
 if [[ ! -z "$install_ols" ]]
 then
     echo "Cloning OpenLiteSpeed Docker..."

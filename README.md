@@ -11,9 +11,10 @@ sudo rm install.sh
 Arguments:
 - `-p`: your new SSH port
 - `-r`: your new root password
+- `-b`: bash aliases
 - `-O`: install OpenLiteSpeed
   - `-a`: OpenLiteSpeed admin password
-  - `-s`: Virtual host name
+  - `-s`: Virtual hostname
 
 For example
 

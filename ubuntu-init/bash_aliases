@@ -1,0 +1,6 @@
+# PHP
+alias php='docker run -it --rm --name php-script -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:cli-bullseye'
+# PHP Composer
+alias composer='docker run --rm -v $(pwd):/app composer/composer'
+# Laravel sail
+alias sail='bash vendor/bin/sail'
