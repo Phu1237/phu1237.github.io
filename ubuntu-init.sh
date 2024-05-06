@@ -14,7 +14,7 @@ while getopts "p:r:Oa:s:" option; do
         r) # Root password
             root_password=$OPTARG;;
         b) # Bash aliases
-            bash_aliases=1;
+            bash_aliases=1;;
         O) # Install OpenLiteSpeed
             install_ols=1;;
         a) # OpenLiteSpeed admin password
