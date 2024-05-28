@@ -1,3 +1,10 @@
+# Add ssh automatically
+added_keys=`ssh-add -l`
+
+if [ ! $(echo $added_keys | grep -o -e my_key) ]; then
+    ssh-add "$HOME/.ssh/my_key"
+fi
+
 # PHP
 alias php='docker run -it --rm -v $(pwd):/usr/src/myapp -w /usr/src/myapp php:cli-bullseye php'
 # PHP Composer
