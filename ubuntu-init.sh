@@ -7,7 +7,7 @@ port=22
 bash_aliases=""
 install_ols=""
 # Get the options
-while getopts "p:r:Oa:s:" option; do
+while getopts "p:r:bOa:s:" option; do
     case $option in
         p) # SSH Port
             port=$OPTARG;;
