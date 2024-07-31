@@ -28,9 +28,9 @@ while getopts "p:r:bOa:s:" option; do
 done
 
 echo "Updating Ubuntu..."
-apt-get update > /dev/null 2>&1
-apt-get upgrade -y > /dev/null 2>&1
-apt autoremove -y > /dev/null 2>&1
+apt-get update
+apt-get upgrade -y
+apt autoremove -y
 echo "Done!"
 
 # Timezone
