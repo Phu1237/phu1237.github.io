@@ -11,3 +11,5 @@ alias php='docker run -it --rm -v $(pwd):/usr/src/myapp -w /usr/src/myapp php:cl
 alias composer='docker run --rm -v $(pwd):/app composer/composer'
 # Laravel sail
 alias sail='bash vendor/bin/sail'
+# Golang
+alias go='docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp golang:latest go'
